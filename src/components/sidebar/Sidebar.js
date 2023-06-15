@@ -5,14 +5,14 @@ import {
     PlusCircleOutlined, ArrowLeftOutlined,
 } from '@ant-design/icons';
 import {Link, NavLink, useNavigate} from "react-router-dom";
-import AuthService from "../../services/auth-service";
+import {logout} from "../../api/auth";
 
 const { Sider } = Layout;
 
 function Sidebar() {
     const navigate = useNavigate();
     const handleLogout = () => {
-        AuthService.logout();
+        logout();
         navigate('/');
     };
 

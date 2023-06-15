@@ -1,23 +1,26 @@
 import React, { useState } from 'react';
 import { Form, Input, Button, Alert } from 'antd';
 import { UserOutlined, LockOutlined } from '@ant-design/icons';
-import AuthService from '../../services/auth-service';
 import { useNavigate } from 'react-router-dom';
+import {useMutation} from "@tanstack/react-query";
+import {login} from "../../api/auth";
 
 function LoginPage() {
     const [loginError, setLoginError] = useState(false);
     const navigate = useNavigate();
+    const loginMutation = useMutation((values) => login(values.email, values.password));
 
     const handleSubmit = (values) => {
-        AuthService.login(values.email, values.password)
-            .then(() => {
+        loginMutation.mutate(values, {
+            onSuccess: () => {
                 navigate('/config');
                 console.log('Login successful');
-            })
-            .catch((error) => {
+            },
+            onError: (error) => {
                 setLoginError(true);
                 console.error('Login error:', error);
-            });
+            },
+        });
     };
 
     return (
@@ -32,11 +35,7 @@ function LoginPage() {
                             { type: 'email', message: 'Please enter a valid email!' },
                         ]}
                     >
-                        <Input
-                            prefix={<UserOutlined />}
-                            placeholder="Email"
-                            autoComplete="email"
-                        />
+                        <Input prefix={<UserOutlined />} placeholder="Email" autoComplete="email" />
                     </Form.Item>
                     <Form.Item
                         name="password"
@@ -55,12 +54,7 @@ function LoginPage() {
                     </Form.Item>
                 </Form>
                 {loginError && (
-                    <Alert
-                        type="error"
-                        message="Invalid email or password"
-                        showIcon
-                        closable
-                    />
+                    <Alert type="error" message="Invalid email or password" showIcon closable />
                 )}
             </div>
         </div>

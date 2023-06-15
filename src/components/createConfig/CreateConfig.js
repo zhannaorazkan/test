@@ -1,6 +1,8 @@
 import React, { useState } from 'react';
 import axios from 'axios';
 import {message} from "antd";
+import {useMutation} from "@tanstack/react-query";
+import {createConfigs} from "../../api/configs";
 
 function CreateConfig() {
     const [formData, setFormData] = useState({
@@ -11,6 +13,9 @@ function CreateConfig() {
         elasticsearch_username: '',
         elasticsearch_password: '',
     });
+    const createConfigMutation = useMutation({
+        mutationFn: createConfigs
+    })
     const [messageApi, contextHolder] = message.useMessage();
     const success = () => {
         messageApi.open({
@@ -66,28 +71,24 @@ function CreateConfig() {
 
     const handleSubmit = (e) => {
         e.preventDefault();
-        const token = localStorage.getItem('token');
+
         const requestData = {
             ...formData,
             ...booleanData,
             server_port: numberData,
         };
 
-        axios
-            .post('http://localhost:4000/configs/test.yml', requestData, {
-                headers: {
-                    Authorization: `Bearer ${token}`,
-                },
-            })
-            .then((response) => {
+        createConfigMutation.mutate(requestData, {
+            onSuccess: () => {
                 console.log(requestData);
-                console.log('File created successfully:', response.data.result);
+                console.log('File created successfully');
                 success();
-            })
-            .catch((error) => {
+            },
+            onError: (error) => {
                 console.error('Error creating configuration file:', error);
                 errorMessage();
-            });
+            },
+        });
     };
 
     //bootstrap validation

@@ -9,10 +9,15 @@ import 'bootstrap/dist/js/bootstrap.bundle'
 import {Layout} from "antd";
 import Sidebar from "./components/sidebar/Sidebar";
 import {Content} from "antd/es/layout/layout";
+import {QueryClient, QueryClientProvider} from "@tanstack/react-query";
+import {ReactQueryDevtools} from "@tanstack/react-query-devtools";
 
+const queryClient = new QueryClient()
 function App() {
 
     return (
+        <QueryClientProvider client={queryClient}>
+            <ReactQueryDevtools/>
         <BrowserRouter>
             <Layout style={{ minHeight: '100vh' }}>
                 <Routes>
@@ -38,6 +43,7 @@ function App() {
                 </Routes>
             </Layout>
         </BrowserRouter>
+        </QueryClientProvider>
     )
 }
 

@@ -1,26 +1,15 @@
-import React, { useState, useEffect } from 'react';
-import axios from 'axios';
+import React from 'react';
 import { Table, message } from 'antd';
-import Sidebar from '../sidebar/Sidebar';
+import {useQuery} from "@tanstack/react-query";
+import {getConfigs} from "../../api/configs";
 
 function ConfigFilePage() {
-    const [configData, setConfigData] = useState(null);
-
-    useEffect(() => {
-        const token = localStorage.getItem('token');
-        axios
-            .get('http://localhost:4000/configs/kibana-3.yml', {
-                headers: {
-                    Authorization: `Bearer ${token}`,
-                },
-            })
-            .then((response) => {
-                setConfigData(response.data);
-            })
-            .catch((error) => {
-                console.error('Error reading configuration file:', error);
-            });
-    }, []);
+    const configsQuery = useQuery({
+        queryKey: ['configs'],
+        queryFn: getConfigs
+    })
+    if (configsQuery.status === 'loading') return <p>Loading...</p>
+    if (configsQuery.status === 'error') return <p>Error :(</p>
 
     const renderValue = (value) => {
         if (typeof value === 'boolean') {
@@ -48,25 +37,20 @@ function ConfigFilePage() {
         },
     ];
 
-    let dataSource = [];
-    if (configData) {
-        dataSource = Object.entries(configData).map(([property, value]) => ({
+    const dataSource = configsQuery.data
+        ? Object.entries(configsQuery.data).map(([property, value]) => ({
             key: property,
             property,
             value: renderValue(value),
-        }));
-    }
+        }))
+        : [];
 
     return (
         <div className="configPage-wrapper">
-            {configData ? (
                 <div className="data-wrapper">
                     <h2>Configuration File Data:</h2>
                     <Table columns={columns} dataSource={dataSource} />
                 </div>
-            ) : (
-                <p>Loading data...</p>
-            )}
         </div>
     );
 }
