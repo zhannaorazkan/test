@@ -3,16 +3,14 @@ import axios from 'axios';
 import {message} from "antd";
 import {useMutation} from "@tanstack/react-query";
 import {createConfigs} from "../../api/configs";
+import {useDispatch, useSelector} from "react-redux";
+import {updateBooleanData, updateFormData, updateNumberData} from "../../features/config/createConfigSlice";
 
 function CreateConfig() {
-    const [formData, setFormData] = useState({
-        server_name: '',
-        server_host: '',
-        kibana_index: '',
-        elasticsearch_hosts: [],
-        elasticsearch_username: '',
-        elasticsearch_password: '',
-    });
+    const dispatch = useDispatch();
+    const formData = useSelector((state)=>state.createConfig.formData);
+    const booleanData = useSelector((state) => state.createConfig.booleanData);
+    const numberData = useSelector((state) => state.createConfig.numberData);
     const createConfigMutation = useMutation({
         mutationFn: createConfigs
     })
@@ -30,44 +28,21 @@ function CreateConfig() {
         });
     };
 
-    const [booleanData, setBooleanData] = useState({
-        elasticsearch_preserveHost: true,
-        logging_silent: true,
-    });
-
-    const [numberData, setNumberData] = useState(0);
-
     const handleBooleanData = (e) => {
         const { name, checked } = e.target;
-        setBooleanData((prevBooleanData) => ({
-            ...prevBooleanData,
-            [name]: checked ? true : false,
-        }));
+        dispatch(updateBooleanData({name, value: checked}))
     };
 
     const handleNumberData = (e) => {
         const newNumber = parseInt(e.target.value);
-        setNumberData(newNumber);
+        dispatch(updateNumberData(newNumber));
     };
 
     const handleInputChange = (e) => {
         const { name, value } = e.target;
-
-        setFormData((prevFormData) => {
-            if (Array.isArray(prevFormData[name])) {
-                const newArrayValue = value.split(',').map((item) => item.trim());
-                return {
-                    ...prevFormData,
-                    [name]: newArrayValue,
-                };
-            }
-
-            return {
-                ...prevFormData,
-                [name]: value,
-            };
-        });
+        dispatch(updateFormData({ name, value }));
     };
+
 
     const handleSubmit = (e) => {
         e.preventDefault();

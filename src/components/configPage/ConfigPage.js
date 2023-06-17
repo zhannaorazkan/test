@@ -1,15 +1,16 @@
-import React from 'react';
-import { Table, message } from 'antd';
-import {useQuery} from "@tanstack/react-query";
-import {getConfigs} from "../../api/configs";
+import React, { useEffect } from 'react';
+import { Table } from 'antd';
+import { useDispatch, useSelector } from 'react-redux';
+import {fetchConfigs} from "../../features/config/configSlice";
+
 
 function ConfigFilePage() {
-    const configsQuery = useQuery({
-        queryKey: ['configs'],
-        queryFn: getConfigs
-    })
-    if (configsQuery.status === 'loading') return <p>Loading...</p>
-    if (configsQuery.status === 'error') return <p>Error :(</p>
+    const dispatch = useDispatch();
+    const configs = useSelector((state) => state.configs);
+
+    useEffect(() => {
+        dispatch(fetchConfigs());
+    }, [dispatch]);
 
     const renderValue = (value) => {
         if (typeof value === 'boolean') {
@@ -36,21 +37,23 @@ function ConfigFilePage() {
             key: 'value',
         },
     ];
-
-    const dataSource = configsQuery.data
-        ? Object.entries(configsQuery.data).map(([property, value]) => ({
+    const dataSource = configs.data
+        ? Object.entries(configs.data).map(([property, value]) => ({
             key: property,
             property,
             value: renderValue(value),
         }))
         : [];
 
+    if (configs.status === 'loading') return <p>Loading...</p>;
+    if (configs.status === 'failed') return <p>Error :(</p>;
+
     return (
         <div className="configPage-wrapper">
-                <div className="data-wrapper">
-                    <h2>Configuration File Data:</h2>
-                    <Table columns={columns} dataSource={dataSource} />
-                </div>
+            <div className="data-wrapper">
+                <h2>Configuration File Data:</h2>
+                <Table columns={columns} dataSource={dataSource} />
+            </div>
         </div>
     );
 }
