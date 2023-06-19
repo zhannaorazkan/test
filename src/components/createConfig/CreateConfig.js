@@ -80,7 +80,7 @@ function CreateConfig() {
                 let isValid = true;
 
                 checkboxes.forEach((checkbox) => {
-                        checkbox.setCustomValidity('');
+                    checkbox.setCustomValidity('');
                 });
 
                 if (!form.checkValidity() || !isValid) {

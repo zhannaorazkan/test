@@ -4,9 +4,12 @@ import { UserOutlined, LockOutlined } from '@ant-design/icons';
 import { useNavigate } from 'react-router-dom';
 import {useMutation} from "@tanstack/react-query";
 import {login} from "../../api/auth";
+import {useDispatch, useSelector} from "react-redux";
+import {setLoginError} from "../../features/auth/authSlice";
 
 function LoginPage() {
-    const [loginError, setLoginError] = useState(false);
+    const loginError = useSelector((state) => state.auth.loginError);
+    const dispatch = useDispatch();
     const navigate = useNavigate();
     const loginMutation = useMutation((values) => login(values.email, values.password));
 
@@ -17,7 +20,7 @@ function LoginPage() {
                 console.log('Login successful');
             },
             onError: (error) => {
-                setLoginError(true);
+                dispatch(setLoginError(true));
                 console.error('Login error:', error);
             },
         });
